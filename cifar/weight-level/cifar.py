@@ -14,7 +14,7 @@ import torch.optim as optim
 import torch.utils.data as data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-
+import numpy as np
 import models.cifar as models
 from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
 
@@ -29,25 +29,25 @@ parser.add_argument('-d', '--dataset', default='cifar10', type=str)
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 # Optimization options
-parser.add_argument('--epochs', default=160, type=int, metavar='N',
+parser.add_argument('--epochs', default=100, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('--train-batch', default=64, type=int, metavar='N',
+parser.add_argument('--train-batch', default=128, type=int, metavar='N',
                     help='train batchsize')
-parser.add_argument('--test-batch', default=50, type=int, metavar='N',
+parser.add_argument('--test-batch', default=100, type=int, metavar='N',
                     help='test batchsize')
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--drop', '--dropout', default=0, type=float,
                     metavar='Dropout', help='Dropout ratio')
-parser.add_argument('--schedule', type=int, nargs='+', default=[80, 120],
+parser.add_argument('--schedule', type=int, nargs='+', default=[150, 225],
                         help='Decrease learning rate at these epochs.')
 parser.add_argument('--gamma', type=float, default=0.1, help='LR is multiplied by gamma on schedule.')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
-parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
-                    metavar='W', help='weight decay (default: 1e-4)')
+parser.add_argument('--weight-decay', '--wd', default=5e-4, type=float,
+                    metavar='W', help='weight decay (default: 5e-4)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 # Architecture
@@ -185,16 +185,15 @@ def main():
 
     # Train and val
     for epoch in range(start_epoch, args.epochs):
-        adjust_learning_rate(optimizer, epoch)
+        newlr = adjust_learning_rate(optimizer, epoch)
 
-        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
+        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
 
         train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda)
         test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda)
 
         # append logger file
         logger.append([state['lr'], train_loss, test_loss, train_acc, test_acc])
-
         # save model
         is_best = test_acc > best_acc
         best_acc = max(test_acc, best_acc)
@@ -229,9 +228,9 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
         data_time.update(time.time() - end)
 
         if use_cuda:
-            inputs, targets = inputs.cuda(), targets.cuda(async=True)
+            inputs, targets = inputs.cuda(), targets.cuda(non_blocking=True)
         inputs, targets = torch.autograd.Variable(inputs), torch.autograd.Variable(targets)
-
+        optimizer.zero_grad()
         # compute output
         outputs = model(inputs)
         loss = criterion(outputs, targets)
@@ -243,8 +242,8 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
         top5.update(prec5[0], inputs.size(0))
 
         # compute gradient and do SGD step
-        optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 3)
         optimizer.step()
 
         # measure elapsed time
@@ -327,10 +326,14 @@ def save_checkpoint(state, is_best, checkpoint, filename='checkpoint.pth.tar'):
 
 def adjust_learning_rate(optimizer, epoch):
     global state
-    if epoch in args.schedule:
-        state['lr'] *= args.gamma
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = state['lr']
+    newlr = 0.5 * (1 + np.cos(np.pi * epoch / state['epochs'])) * state['lr']
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = newlr
+    return newlr
+    # if epoch in args.schedule:
+    #     state['lr'] *= args.gamma
+    #     for param_group in optimizer.param_groups:
+    #         param_group['lr'] = state['lr']
 
 if __name__ == '__main__':
     main()
