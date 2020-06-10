@@ -67,6 +67,9 @@ parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
 
 parser.add_argument('--save_dir', default='results/', type=str)
+parser.add_argument('--clipping', default=False, action="store_true", help="whether use gradient clipping")
+
+
 
 args = parser.parse_args()
 state = {k: v for k, v in args._get_kwargs()}
@@ -243,7 +246,8 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
 
         # compute gradient and do SGD step
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 3)
+        if args.clipping:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 3)
         optimizer.step()
 
         # measure elapsed time
