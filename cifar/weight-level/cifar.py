@@ -169,16 +169,21 @@ def main():
     # Resume
     title = 'cifar-10-' + args.arch
     if args.resume:
-        # Load checkpoint.
+        # # Load checkpoint.
+        # print('==> Resuming from checkpoint..')
+        # assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
+        # args.save_dir = os.path.dirname(args.resume)
+        # checkpoint = torch.load(args.resume)
+        # best_acc = checkpoint['best_acc']
+        # start_epoch = checkpoint['epoch']
+        # model.load_state_dict(checkpoint['state_dict'])
+        # optimizer.load_state_dict(checkpoint['optimizer'])
+        # logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title, resume=True)
+
         print('==> Resuming from checkpoint..')
         assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
-        args.save_dir = os.path.dirname(args.resume)
         checkpoint = torch.load(args.resume)
-        best_acc = checkpoint['best_acc']
-        start_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['state_dict'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title, resume=True)
     else:
         logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title)
         logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
