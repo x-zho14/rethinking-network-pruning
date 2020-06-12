@@ -16,7 +16,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
 import models.cifar as models
-from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
+from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig, ProgressMeter
 
 
 model_names = sorted(name for name in models.__dict__
@@ -234,11 +234,24 @@ def main():
 def test(testloader, model, criterion, epoch, use_cuda):
     global best_acc
 
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    losses = AverageMeter()
-    top1 = AverageMeter()
-    top5 = AverageMeter()
+    # batch_time = AverageMeter()
+    # data_time = AverageMeter()
+    # losses = AverageMeter()
+    # top1 = AverageMeter()
+    # top5 = AverageMeter()
+
+    losses = AverageMeter("Loss", ":.3f", write_val=False)
+    top1 = AverageMeter("Acc@1", ":6.2f", write_val=False)
+    top5 = AverageMeter("Acc@5", ":6.2f", write_val=False)
+    progress = ProgressMeter(
+        len(testloader), [losses, top1, top5], prefix="Test: "
+    )
+
+    batch_time = AverageMeter("batch_time")
+    data_time = AverageMeter("data_time")
+    # losses = AverageMeter()
+    # top1 = AverageMeter()
+    # top5 = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
@@ -266,21 +279,24 @@ def test(testloader, model, criterion, epoch, use_cuda):
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-
-        # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
-                    batch=batch_idx + 1,
-                    size=len(testloader),
-                    data=data_time.avg,
-                    bt=batch_time.avg,
-                    total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    top1=top1.avg,
-                    top5=top5.avg,
-                    )
-        bar.next()
-    bar.finish()
+        if batch_idx % 100 == 0:
+            progress.display(batch_idx)
+    progress.display(len(testloader))
+    # progress.write_to_tensorboard(writer, prefix="test", global_step=epoch)
+    #     # plot progress
+    #     bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
+    #                 batch=batch_idx + 1,
+    #                 size=len(testloader),
+    #                 data=data_time.avg,
+    #                 bt=batch_time.avg,
+    #                 total=bar.elapsed_td,
+    #                 eta=bar.eta_td,
+    #                 loss=losses.avg,
+    #                 top1=top1.avg,
+    #                 top5=top5.avg,
+    #                 )
+    #     bar.next()
+    # bar.finish()
     return (losses.avg, top1.avg)
 
 def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
