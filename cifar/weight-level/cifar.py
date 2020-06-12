@@ -18,6 +18,7 @@ import numpy as np
 import models.cifar as models
 from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig, ProgressMeter
 from torch.utils.tensorboard import SummaryWriter
+from utils.misc import get_conv_zero_param
 
 
 model_names = sorted(name for name in models.__dict__
@@ -194,6 +195,11 @@ def main():
         # newlr = adjust_learning_rate(optimizer, epoch)
 
         # print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
+        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
+        num_parameters = get_conv_zero_param(model)
+        print('Zero parameters: {}'.format(num_parameters))
+        num_parameters = sum([param.nelement() for param in model.parameters()])
+        print('Parameters: {}'.format(num_parameters))
 
         train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer)
         test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
