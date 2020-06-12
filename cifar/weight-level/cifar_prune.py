@@ -257,30 +257,31 @@ def test(testloader, model, criterion, epoch, use_cuda):
     model.eval()
 
     end = time.time()
-    bar = Bar('Processing', max=len(testloader))
-    for batch_idx, (inputs, targets) in enumerate(testloader):
-        # measure data loading time
-        data_time.update(time.time() - end)
+    # bar = Bar('Processing', max=len(testloader))
+    with torch.no_grad():
+        for batch_idx, (inputs, targets) in enumerate(testloader):
+            # measure data loading time
+            data_time.update(time.time() - end)
 
-        if use_cuda:
-            inputs, targets = inputs.cuda(), targets.cuda()
-        inputs, targets = torch.autograd.Variable(inputs, volatile=True), torch.autograd.Variable(targets)
+            if use_cuda:
+                inputs, targets = inputs.cuda(), targets.cuda()
+            inputs, targets = torch.autograd.Variable(inputs), torch.autograd.Variable(targets)
 
-        # compute output
-        outputs = model(inputs)
-        loss = criterion(outputs, targets)
+            # compute output
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
 
-        # measure accuracy and record loss
-        prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
-        losses.update(loss.data[0], inputs.size(0))
-        top1.update(prec1[0], inputs.size(0))
-        top5.update(prec5[0], inputs.size(0))
+            # measure accuracy and record loss
+            prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
+            losses.update(loss.data.item(), inputs.size(0))
+            top1.update(prec1.item(), inputs.size(0))
+            top5.update(prec5.item(), inputs.size(0))
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
-        if batch_idx % 100 == 0:
-            progress.display(batch_idx)
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+            if batch_idx % 100 == 0:
+                progress.display(batch_idx)
     progress.display(len(testloader))
     # progress.write_to_tensorboard(writer, prefix="test", global_step=epoch)
     #     # plot progress
