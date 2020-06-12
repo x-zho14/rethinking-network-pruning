@@ -187,7 +187,7 @@ def main():
         test_loss, test_acc = test(testloader, model, criterion, start_epoch, use_cuda)
         print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
         return
-    log_base_dir = "logs" + args.number
+    log_base_dir = "logs" + str(args.number)
     # Train and val
     writer = SummaryWriter(log_dir=log_base_dir)
     for epoch in range(start_epoch, args.epochs):
