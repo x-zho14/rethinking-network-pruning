@@ -220,8 +220,8 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
     # switch to train mode
     model.train()
 
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
+    batch_time = AverageMeter("batch_time")
+    data_time = AverageMeter("data_time")
     # losses = AverageMeter()
     # top1 = AverageMeter()
     # top5 = AverageMeter()
@@ -294,8 +294,8 @@ def test(testloader, model, criterion, epoch, use_cuda, writer):
     )
 
 
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
+    batch_time = AverageMeter("batch_time")
+    data_time = AverageMeter("data_time") 
     # losses = AverageMeter()
     # top1 = AverageMeter()
     # top5 = AverageMeter()
