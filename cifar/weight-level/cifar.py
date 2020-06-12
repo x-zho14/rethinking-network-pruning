@@ -16,7 +16,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import numpy as np
 import models.cifar as models
-from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig
+from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig, ProgressMeter
+from torch.utils.tensorboard import SummaryWriter
 
 
 model_names = sorted(name for name in models.__dict__
@@ -68,7 +69,7 @@ parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
 
 parser.add_argument('--save_dir', default='results/', type=str)
 parser.add_argument('--clipping', default=False, action="store_true", help="whether use gradient clipping")
-
+parser.add_argument('--number', type=int, default=0, help='log number')
 
 
 args = parser.parse_args()
@@ -186,8 +187,9 @@ def main():
         test_loss, test_acc = test(testloader, model, criterion, start_epoch, use_cuda)
         print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
         return
-
+    log_base_dir = "logs" + args.number
     # Train and val
+    writer = SummaryWriter(log_dir=log_base_dir)
     for epoch in range(start_epoch, args.epochs):
         newlr = adjust_learning_rate(optimizer, epoch)
 
@@ -214,19 +216,26 @@ def main():
     print('Best acc:')
     print(best_acc)
 
-def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
+def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
     # switch to train mode
     model.train()
 
     batch_time = AverageMeter()
     data_time = AverageMeter()
-    losses = AverageMeter()
-    top1 = AverageMeter()
-    top5 = AverageMeter()
+    # losses = AverageMeter()
+    # top1 = AverageMeter()
+    # top5 = AverageMeter()
     end = time.time()
 
-    bar = Bar('Processing', max=len(trainloader))
-    print(args)
+    losses = AverageMeter("Loss", ":.3f", write_val=False)
+    top1 = AverageMeter("Acc@1", ":6.2f", write_val=False)
+    top5 = AverageMeter("Acc@5", ":6.2f", write_val=False)
+    progress = ProgressMeter(
+        len(trainloader), [losses, top1, top5], prefix="Test: "
+    )
+
+    # bar = Bar('Processing', max=len(trainloader))
+    # print(args)
     for batch_idx, (inputs, targets) in enumerate(trainloader):
         # measure data loading time
         data_time.update(time.time() - end)
@@ -254,37 +263,48 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda):
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-
+        if batch_idx % 100 == 0:
+            progress.display(batch_idx)
+    progress.display(len(trainloader))
+    progress.write_to_tensorboard(writer, prefix="train", global_step=epoch)
         # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
-                    batch=batch_idx + 1,
-                    size=len(trainloader),
-                    data=data_time.avg,
-                    bt=batch_time.avg,
-                    total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    top1=top1.avg,
-                    top5=top5.avg,
-                    )
-        bar.next()
-    bar.finish()
+    #     bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
+    #                 batch=batch_idx + 1,
+    #                 size=len(trainloader),
+    #                 data=data_time.avg,
+    #                 bt=batch_time.avg,
+    #                 total=bar.elapsed_td,
+    #                 eta=bar.eta_td,
+    #                 loss=losses.avg,
+    #                 top1=top1.avg,
+    #                 top5=top5.avg,
+    #                 )
+    #     bar.next()
+    # bar.finish()
     return (losses.avg, top1.avg)
 
-def test(testloader, model, criterion, epoch, use_cuda):
+def test(testloader, model, criterion, epoch, use_cuda, writer):
     global best_acc
+
+    losses = AverageMeter("Loss", ":.3f", write_val=False)
+    top1 = AverageMeter("Acc@1", ":6.2f", write_val=False)
+    top5 = AverageMeter("Acc@5", ":6.2f", write_val=False)
+    progress = ProgressMeter(
+        len(testloader), [losses, top1, top5], prefix="Test: "
+    )
+
 
     batch_time = AverageMeter()
     data_time = AverageMeter()
-    losses = AverageMeter()
-    top1 = AverageMeter()
-    top5 = AverageMeter()
+    # losses = AverageMeter()
+    # top1 = AverageMeter()
+    # top5 = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
 
     end = time.time()
-    bar = Bar('Processing', max=len(testloader))
+    # bar = Bar('Processing', max=len(testloader))
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             # measure data loading time
@@ -307,21 +327,24 @@ def test(testloader, model, criterion, epoch, use_cuda):
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
-
+            if batch_idx % 100 == 0:
+                progress.display(batch_idx)
+        progress.display(len(testloader))
+        progress.write_to_tensorboard(writer, prefix="test", global_step=epoch)
             # plot progress
-            bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
-                        batch=batch_idx + 1,
-                        size=len(testloader),
-                        data=data_time.avg,
-                        bt=batch_time.avg,
-                        total=bar.elapsed_td,
-                        eta=bar.eta_td,
-                        loss=losses.avg,
-                        top1=top1.avg,
-                        top5=top5.avg,
-                        )
-            bar.next()
-    bar.finish()
+    #         bar.suffix  = '({batch}/{size}) Data: {data:.3f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | top1: {top1: .4f} | top5: {top5: .4f}'.format(
+    #                     batch=batch_idx + 1,
+    #                     size=len(testloader),
+    #                     data=data_time.avg,
+    #                     bt=batch_time.avg,
+    #                     total=bar.elapsed_td,
+    #                     eta=bar.eta_td,
+    #                     loss=losses.avg,
+    #                     top1=top1.avg,
+    #                     top5=top5.avg,
+    #                     )
+    #         bar.next()
+    # bar.finish()
     return (losses.avg, top1.avg)
 
 def save_checkpoint(state, is_best, checkpoint, filename='checkpoint.pth.tar'):

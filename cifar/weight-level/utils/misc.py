@@ -3,11 +3,13 @@ import math
 import os
 import sys
 import time
+import tqdm
 
 import torch
 import torch.nn as nn
 import torch.nn.init as init
 from torch.autograd import Variable
+from torch.utils.tensorboard import SummaryWriter
 
 
 __all__ = ['get_mean_and_std', 'init_params', 'mkdir_p', 'AverageMeter']
@@ -59,12 +61,69 @@ def mkdir_p(path):
         else:
             raise
 
+# class AverageMeter(object):
+#     """Computes and stores the average and current value
+#        Imported from https://github.com/pytorch/examples/blob/master/imagenet/main.py#L247-L262
+#     """
+#     def __init__(self):
+#         self.reset()
+#
+#     def reset(self):
+#         self.val = 0
+#         self.avg = 0
+#         self.sum = 0
+#         self.count = 0
+#
+#     def update(self, val, n=1):
+#         self.val = val
+#         self.sum += val * n
+#         self.count += n
+#         self.avg = self.sum / self.count
+
+class ProgressMeter(object):
+    def __init__(self, num_batches, meters, prefix=""):
+        self.batch_fmtstr = self._get_batch_fmtstr(num_batches)
+        self.meters = meters
+        self.prefix = prefix
+
+    def display(self, batch, tqdm_writer=True):
+        entries = [self.prefix + self.batch_fmtstr.format(batch)]
+        entries += [str(meter) for meter in self.meters]
+        if not tqdm_writer:
+            print("\t".join(entries))
+        else:
+            tqdm.tqdm.write("\t".join(entries))
+
+    def write_to_tensorboard(
+        self, writer: SummaryWriter, prefix="train", global_step=None
+    ):
+        for meter in self.meters:
+            avg = meter.avg
+            val = meter.val
+            if meter.write_val:
+                writer.add_scalar(
+                    f"{prefix}/{meter.name}_val", val, global_step=global_step
+                )
+            if meter.write_avg:
+                writer.add_scalar(
+                    f"{prefix}/{meter.name}_avg", avg, global_step=global_step
+                )
+
+    def _get_batch_fmtstr(self, num_batches):
+        num_digits = len(str(num_batches // 1))
+        fmt = "{:" + str(num_digits+2) + "d}"
+        return "[" + fmt + "/" + fmt.format(num_batches) + "]"
+
 class AverageMeter(object):
-    """Computes and stores the average and current value
-       Imported from https://github.com/pytorch/examples/blob/master/imagenet/main.py#L247-L262
-    """
-    def __init__(self):
+    """ Computes and stores the average and current value """
+
+    def __init__(self, name, fmt=":f", write_val=True, write_avg=True):
+        self.name = name
+        self.fmt = fmt
         self.reset()
+
+        self.write_val = write_val
+        self.write_avg = write_avg
 
     def reset(self):
         self.val = 0
@@ -77,3 +136,7 @@ class AverageMeter(object):
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+    def __str__(self):
+        fmtstr = "{name} {val" + self.fmt + "} ({avg" + self.fmt + "})"
+        return fmtstr.format(**self.__dict__)
