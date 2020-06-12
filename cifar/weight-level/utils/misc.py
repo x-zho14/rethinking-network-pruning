@@ -12,7 +12,7 @@ from torch.autograd import Variable
 from torch.utils.tensorboard import SummaryWriter
 
 
-__all__ = ['get_mean_and_std', 'init_params', 'mkdir_p', 'AverageMeter']
+__all__ = ['get_mean_and_std', 'init_params', 'mkdir_p', 'AverageMeter', 'ProgressMeter']
 
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''
