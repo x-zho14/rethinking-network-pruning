@@ -231,7 +231,7 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
     top1 = AverageMeter("Acc@1", ":6.2f", write_val=False)
     top5 = AverageMeter("Acc@5", ":6.2f", write_val=False)
     progress = ProgressMeter(
-        len(trainloader), [losses, top1, top5], prefix="Test: "
+        len(trainloader), [losses, top1, top5], prefix="Train: "
     )
 
     # bar = Bar('Processing', max=len(trainloader))
@@ -295,7 +295,7 @@ def test(testloader, model, criterion, epoch, use_cuda, writer):
 
 
     batch_time = AverageMeter("batch_time")
-    data_time = AverageMeter("data_time") 
+    data_time = AverageMeter("data_time")
     # losses = AverageMeter()
     # top1 = AverageMeter()
     # top5 = AverageMeter()
