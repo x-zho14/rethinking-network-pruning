@@ -185,8 +185,9 @@ def main():
         checkpoint = torch.load(args.resume)
         model.load_state_dict(checkpoint['state_dict'])
     else:
-        logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title)
-        logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
+        # logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title)
+        # logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
+        print("else")
 
     if args.evaluate:
         print('\nEvaluation only')
@@ -210,7 +211,7 @@ def main():
         test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
 
         # append logger file
-        logger.append([state['lr'], train_loss, test_loss, train_acc, test_acc])
+        # logger.append([state['lr'], train_loss, test_loss, train_acc, test_acc])
         # save model
         is_best = test_acc > best_acc
         best_acc = max(test_acc, best_acc)
@@ -222,7 +223,7 @@ def main():
                 'optimizer' : optimizer.state_dict(),
             }, is_best, checkpoint=args.save_dir)
 
-    logger.close()
+    # logger.close()
 
     print('Best acc:')
     print(best_acc)
