@@ -191,9 +191,9 @@ def main():
     # Train and val
     writer = SummaryWriter(log_dir=log_base_dir)
     for epoch in range(start_epoch, args.epochs):
-        newlr = adjust_learning_rate(optimizer, epoch)
+        # newlr = adjust_learning_rate(optimizer, epoch)
 
-        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
+        # print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
 
         train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer)
         test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
@@ -256,8 +256,16 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
 
         # compute gradient and do SGD step
         loss.backward()
+        for k, m in enumerate(model.modules()):
+            # print(k, m)
+            if isinstance(m, nn.Conv2d):
+                weight_copy = m.weight.data.abs().clone()
+                mask = weight_copy.gt(0).float().cuda()
+                m.weight.grad.data.mul_(mask)
         if args.clipping:
             torch.nn.utils.clip_grad_norm_(model.parameters(), 3)
+
+
         optimizer.step()
 
         # measure elapsed time
