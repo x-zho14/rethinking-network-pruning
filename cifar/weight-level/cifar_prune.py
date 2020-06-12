@@ -207,8 +207,8 @@ def main():
             m.weight.data.mul_(mask)
             if int(torch.sum(mask)) == 0:
                 zero_flag = True
-            print('layer index: {:d} \t total params: {:d} \t remaining params: {:d}'.
-                format(k, mask.numel(), int(torch.sum(mask))))
+            print('layer index: {:d} \t total params: {:d} \t remaining params: {:d} \t remaining ratio: {:f}'.
+                format(k, mask.numel(), int(torch.sum(mask)), int(torch.sum(mask))/mask.numel()))
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
 # -------------------------------------------------------------
 
