@@ -198,9 +198,9 @@ def main():
     # Train and val
     writer = SummaryWriter(log_dir=log_base_dir)
     for epoch in range(start_epoch, args.epochs):
-        # newlr = adjust_learning_rate(optimizer, epoch)
+        newlr = adjust_learning_rate(optimizer, epoch)
 
-        # print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
+        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
         print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
         num_parameters = get_conv_zero_param(model)
         print('Zero parameters: {}'.format(num_parameters))
