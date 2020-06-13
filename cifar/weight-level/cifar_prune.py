@@ -169,7 +169,7 @@ def main():
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
         assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
-        checkpoint = torch.load(args.resume)
+        checkpoint = torch.load(args.resume, map_location=torch.device("cuda:0"))
         model.load_state_dict(checkpoint['state_dict'])
     else:
         logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title)
