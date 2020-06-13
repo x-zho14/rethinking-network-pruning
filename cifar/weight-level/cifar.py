@@ -201,7 +201,7 @@ def main():
         newlr = adjust_learning_rate(optimizer, epoch)
 
         print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, newlr))
-        print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
+        # print('\nEpoch: [%d | %d] LR: %f' % (epoch + 1, args.epochs, state['lr']))
         num_parameters = get_conv_zero_param(model)
         print('Zero parameters: {}'.format(num_parameters))
         num_parameters = sum([param.nelement() for param in model.parameters()])

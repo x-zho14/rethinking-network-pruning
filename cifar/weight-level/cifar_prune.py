@@ -202,6 +202,10 @@ def main():
     for k, m in enumerate(model.modules()):
         if isinstance(m, nn.Conv2d):
             weight_copy = m.weight.data.abs().clone()
+            if True:
+                y, i = torch.sort(weight_copy)
+                thre_index = int(m.weight.data.numel() * args.percent)
+                thre = y[thre_index]
             mask = weight_copy.gt(thre).float().cuda()
             pruned = pruned + mask.numel() - torch.sum(mask)
             m.weight.data.mul_(mask)
