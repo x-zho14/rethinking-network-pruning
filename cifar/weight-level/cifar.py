@@ -283,13 +283,13 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer, tes
 
         optimizer.step()
 
-        test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
-        print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
+        # test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
+        # print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
 
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-        if batch_idx % 1 == 0:
+        if batch_idx % 10 == 0:
             progress.display(batch_idx)
     progress.display(len(trainloader))
     progress.write_to_tensorboard(writer, prefix="train", global_step=epoch)
