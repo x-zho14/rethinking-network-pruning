@@ -210,7 +210,7 @@ def main():
         num_parameters = sum([param.nelement() for param in model.parameters()])
         print('Parameters: {}'.format(num_parameters))
 
-        train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer)
+        train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer, testloader)
         test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
 
         # append logger file
@@ -231,7 +231,7 @@ def main():
     print('Best acc:')
     print(best_acc)
 
-def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
+def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer, testloader):
     # switch to train mode
     model.train()
 
