@@ -298,7 +298,7 @@ def test(testloader, model, criterion, epoch, use_cuda):
             # compute output
             outputs = model(inputs)
             loss = criterion(outputs, targets)
-
+            print("loss inputs targets",  loss, inputs, targets)
             # measure accuracy and record loss
             prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
             losses.update(loss.data.item(), inputs.size(0))
@@ -308,7 +308,7 @@ def test(testloader, model, criterion, epoch, use_cuda):
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
-            if batch_idx % 100 == 0:
+            if batch_idx % 10 == 0:
                 progress.display(batch_idx)
     progress.display(len(testloader))
     # progress.write_to_tensorboard(writer, prefix="test", global_step=epoch)
