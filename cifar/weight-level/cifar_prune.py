@@ -106,7 +106,7 @@ def main():
 
     transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.491, 0.482, 0.447], std=[0.247, 0.243, 0.262]),ß
+        transforms.Normalize(mean=[0.491, 0.482, 0.447], std=[0.247, 0.243, 0.262]),
     ])
     if args.dataset == 'cifar10':
         dataloader = datasets.CIFAR10
