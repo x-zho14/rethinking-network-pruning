@@ -299,7 +299,6 @@ def test(testloader, model, criterion, epoch, use_cuda):
             outputs = model(inputs)
             loss = criterion(outputs, targets)
             print("loss inputs targets",  loss, inputs, targets)
-            exit(-1)
             # measure accuracy and record loss
             prec1, prec5 = accuracy(outputs.data, targets.data, topk=(1, 5))
             losses.update(loss.data.item(), inputs.size(0))
