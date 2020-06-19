@@ -242,9 +242,9 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
     # top5 = AverageMeter()
     end = time.time()
 
-    losses = AverageMeter("Loss", ":.3f", write_val=False)
-    top1 = AverageMeter("Acc@1", ":6.2f", write_val=False)
-    top5 = AverageMeter("Acc@5", ":6.2f", write_val=False)
+    losses = AverageMeter("Loss", ":.3f", write_val=True)
+    top1 = AverageMeter("Acc@1", ":6.2f", write_val=True)
+    top5 = AverageMeter("Acc@5", ":6.2f", write_val=True)
     progress = ProgressMeter(
         len(trainloader), [losses, top1, top5], prefix="Train: "
     )
@@ -289,7 +289,7 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-        if batch_idx % 100 == 0:
+        if batch_idx % 1 == 0:
             progress.display(batch_idx)
     progress.display(len(trainloader))
     progress.write_to_tensorboard(writer, prefix="train", global_step=epoch)
