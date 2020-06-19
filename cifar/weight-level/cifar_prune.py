@@ -167,10 +167,33 @@ def main():
     title = 'cifar-10-' + args.arch
     if args.resume:
         # Load checkpoint.
-        print('==> Resuming from checkpoint..')
-        assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
-        checkpoint = torch.load(args.resume, map_location=torch.device("cuda:0"))
-        model.load_state_dict(checkpoint['state_dict'])
+        # print('==> Resuming from checkpoint..')
+        # assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
+        # checkpoint = torch.load(args.resume, map_location=torch.device("cuda:0"))
+        # model.load_state_dict(checkpoint['state_dict'])
+
+        print("=> loading pretrained weights from '{}'".format(args.resume))
+        pretrained = torch.load(
+            args.resume,
+            map_location=torch.device("cuda:0"),
+        )["state_dict"]
+
+        model_state_dict = model.state_dict()
+        # print(model_state_dict.keys())
+        for k, v in pretrained.items():
+            if k not in model_state_dict or v.size() != model_state_dict[k].size():
+                print("IGNORE:", k)
+            else:
+                print("LOAD:", k)
+        pretrained = {
+            k: v
+            for k, v in pretrained.items()
+            if (k in model_state_dict and v.size() == model_state_dict[k].size())
+        }
+        # print(pretrained.keys())
+        model_state_dict.update(pretrained)
+        # print(model_state_dict.keys())
+        model.load_state_dict(model_state_dict)
     else:
         logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title)
         logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
