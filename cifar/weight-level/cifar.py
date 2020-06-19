@@ -189,14 +189,16 @@ def main():
         # logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
         print("else")
 
+    log_base_dir = "logs" + str(args.number)
+    # Train and val
+    writer = SummaryWriter(log_dir=log_base_dir)
+
     if args.evaluate:
         print('\nEvaluation only')
         test_loss, test_acc = test(testloader, model, criterion, start_epoch, use_cuda, writer)
         print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
         return
-    log_base_dir = "logs" + str(args.number)
-    # Train and val
-    writer = SummaryWriter(log_dir=log_base_dir)
+
 
     for epoch in range(start_epoch, args.epochs):
         newlr = adjust_learning_rate(optimizer, epoch)
