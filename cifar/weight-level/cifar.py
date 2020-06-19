@@ -283,6 +283,9 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer):
 
         optimizer.step()
 
+        test_loss, test_acc = test(testloader, model, criterion, start_epoch, use_cuda, writer)
+        print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
+
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
