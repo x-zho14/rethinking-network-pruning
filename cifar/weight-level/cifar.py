@@ -254,7 +254,7 @@ def main():
         if k not in model_state_dict or v.size() != model_state_dict[k].size():
             print("IGNORE:", k)
         else:
-            print("COMPARE:", k, original_model_state_dict[k], model_state_dict[k], original_model_state_dict[k]/model_state_dict[k])
+            print("COMPARE:", k, original_model_state_dict[k], model_state_dict[k], model_state_dict[k]/original_model_state_dict[k])
 
 
     # logger.close()
