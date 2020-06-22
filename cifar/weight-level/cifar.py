@@ -314,7 +314,7 @@ def train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer, tes
             torch.nn.utils.clip_grad_norm_(model.parameters(), 3)
 
 
-        # optimizer.step()
+        optimizer.step()
 
         # test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
         # print(' Test Loss:  %.8f, Test Acc:  %.2f' % (test_loss, test_acc))
