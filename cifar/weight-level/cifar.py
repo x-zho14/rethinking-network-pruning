@@ -19,7 +19,7 @@ import models.cifar as models
 from utils import Bar, Logger, AverageMeter, accuracy, mkdir_p, savefig, ProgressMeter
 from torch.utils.tensorboard import SummaryWriter
 from utils.misc import get_conv_zero_param
-
+import copy
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
