@@ -223,8 +223,8 @@ def main():
         return
     original_model_state_dict = copy.deepcopy(model.state_dict())
     print("Before training:")
-    train_loss, train_acc = train(trainloader, model, criterion, optimizer, epoch, use_cuda, writer, testloader)
-    test_loss, test_acc = test(testloader, model, criterion, epoch, use_cuda, writer)
+    train_loss, train_acc = train(trainloader, model, criterion, optimizer, 0, use_cuda, writer, testloader)
+    test_loss, test_acc = test(testloader, model, criterion, 0, use_cuda, writer)
     for epoch in range(start_epoch, args.epochs):
         newlr = adjust_learning_rate(optimizer, epoch)
 
