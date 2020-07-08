@@ -66,3 +66,4 @@ from .vgg import *
 from .resnet import *
 from .preresnet import *
 from .densenet import *
+from .resnet_cifar import *

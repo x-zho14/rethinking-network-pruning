@@ -152,6 +152,10 @@ def main():
                     num_classes=num_classes,
                     depth=args.depth,
                 )
+    elif args.arch.endswith('resnet32'):
+        model = models.__dict__[args.arch](
+                    num_classes=num_classes
+                )
     else:
         model = models.__dict__[args.arch](num_classes=num_classes)
 
