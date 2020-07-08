@@ -147,11 +147,11 @@ def main():
                     widen_factor=args.widen_factor,
                     dropRate=args.drop,
                 )
-    elif args.arch.endswith('resnet'):
-        model = models.__dict__[args.arch](
-                    num_classes=num_classes,
-                    depth=args.depth,
-                )
+    # elif args.arch.endswith('resnet'):
+    #     model = models.__dict__[args.arch](
+    #                 num_classes=num_classes,
+    #                 depth=args.depth,
+    #             )
     elif args.arch.endswith('resnet32'):
         model = models.__dict__[args.arch](
                     num_classes=num_classes
@@ -187,7 +187,7 @@ def main():
         for k, v in pretrained.items():
             if k not in model_state_dict or v.size() != model_state_dict[k].size():
                 if k not in model_state_dict:
-                    print("not in state dict", model_state_dict)
+                    print("not in state dict", model_state_dict.keys())
                 elif v.size() != model_state_dict[k].size():
                     print("size not match,", v.size(), model_state_dict[k].size())
                 print("IGNORE:", k)
