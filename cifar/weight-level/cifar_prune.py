@@ -206,12 +206,12 @@ def main():
     #pruning 
     total = 0
     for m in model.modules():
-        if isinstance(m, nn.Conv2d):
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
             total += m.weight.data.numel()
     conv_weights = torch.zeros(total)
     index = 0
     for m in model.modules():
-        if isinstance(m, nn.Conv2d):
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
             size = m.weight.data.numel()
             conv_weights[index:(index+size)] = m.weight.data.view(-1).abs().clone()
             index += size
@@ -223,7 +223,7 @@ def main():
     print('Pruning threshold: {}'.format(thre))
     zero_flag = False
     for k, m in enumerate(model.modules()):
-        if isinstance(m, nn.Conv2d):
+        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
             weight_copy = m.weight.data.abs().clone()
             # weight_copy_2 = m.weight.data.view(-1).abs().clone()
             # if True:
