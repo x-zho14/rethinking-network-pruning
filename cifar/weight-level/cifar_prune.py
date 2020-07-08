@@ -187,7 +187,7 @@ def main():
         for k, v in pretrained.items():
             if k not in model_state_dict or v.size() != model_state_dict[k].size():
                 if k not in model_state_dict:
-                    print("not in state dict")
+                    print("not in state dict", model_state_dict)
                 elif v.size() != model_state_dict[k].size():
                     print("size not match,", v.size(), model_state_dict[k].size())
                 print("IGNORE:", k)
