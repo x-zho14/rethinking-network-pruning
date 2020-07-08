@@ -147,11 +147,11 @@ def main():
                     widen_factor=args.widen_factor,
                     dropRate=args.drop,
                 )
-    # elif args.arch.endswith('resnet'):
-    #     model = models.__dict__[args.arch](
-    #                 num_classes=num_classes,
-    #                 depth=args.depth,
-    #             )
+    elif args.arch.endswith('resnet'):
+        model = models.__dict__[args.arch](
+                    num_classes=num_classes,
+                    depth=args.depth,
+                )
     elif args.arch.endswith('resnet32'):
         model = models.__dict__[args.arch](
                     num_classes=num_classes
