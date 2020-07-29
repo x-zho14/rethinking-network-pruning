@@ -291,7 +291,7 @@ def test(testloader, model, criterion, epoch, use_cuda):
     # top5 = AverageMeter()
 
     # switch to evaluate mode
-    # model.eval()
+    model.eval()
 
     end = time.time()
     # bar = Bar('Processing', max=len(testloader))
