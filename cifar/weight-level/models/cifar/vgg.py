@@ -11,43 +11,17 @@ __all__ = [
     'vgg19_bn', 'vgg19',
 ]
 
-
-model_urls = {
-    'vgg11': 'https://download.pytorch.org/models/vgg11-bbd30ac9.pth',
-    'vgg13': 'https://download.pytorch.org/models/vgg13-c768596a.pth',
-    'vgg16': 'https://download.pytorch.org/models/vgg16-397923af.pth',
-    'vgg19': 'https://download.pytorch.org/models/vgg19-dcbb9e9d.pth',
-}
-
-
 class VGG(nn.Module):
 
     def __init__(self, features, num_classes=1000):
         super(VGG, self).__init__()
         self.features = features
-        self.classifier = nn.Linear(512, num_classes)
-        self._initialize_weights()
+        self.linear = nn.Conv2d(512, num_classes, kernel_size=1, stride=1, bias=False)
 
     def forward(self, x):
         x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        return x
-
-    def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                n = m.kernel_size[0] * m.kernel_size[1] * (m.in_channels)
-                m.weight.data.normal_(0, math.sqrt(2. / n))
-                if m.bias is not None:
-                    m.bias.data.zero_()
-            elif isinstance(m, nn.BatchNorm2d):
-                m.weight.data.fill_(1)
-                m.bias.data.zero_()
-            elif isinstance(m, nn.Linear):
-                n = m.weight.size(1)
-                m.weight.data.normal_(0, 0.01)
-                m.bias.data.zero_()
+        x = self.linear(x)
+        return x.squeeze()
 
 
 def make_layers(cfg, batch_norm=False):
