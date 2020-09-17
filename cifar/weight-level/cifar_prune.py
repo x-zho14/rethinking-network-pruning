@@ -231,6 +231,7 @@ def main():
     pruned = 0
     print('Pruning threshold: {}'.format(thre))
     zero_flag = False
+    ratio_list = []
     for k, m in enumerate(model.modules()):
         if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
             weight_copy = m.weight.data.abs().clone()
@@ -246,8 +247,10 @@ def main():
                 zero_flag = True
             print('layer index: {:d} \t total params: {:d} \t remaining params: {:d} \t remaining ratio: {:f}'.
                 format(k, mask.numel(), int(torch.sum(mask)), int(torch.sum(mask))/mask.numel()))
+            ratio_list.append(int(torch.sum(mask))/mask.numel())
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
 # -------------------------------------------------------------
+    print("ratio_list:", ratio_list)
 
     print('\nTesting')
     test_loss1, test_acc1 = test(testloader, model, criterion, start_epoch, use_cuda)
