@@ -217,6 +217,7 @@ def main():
                       format(k, mask.numel(), int(torch.sum(mask)), int(torch.sum(mask)) / mask.numel()))
                 ratio_list.append(int(torch.sum(mask)) / mask.numel())
         print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned / total))
+        print("ratio_list:", ratio_list)
         if args.stop:
             return
 
