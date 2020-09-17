@@ -68,6 +68,7 @@ parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
 
 parser.add_argument('--save_dir', default='test_checkpoint/', type=str)
 parser.add_argument('--percent', default=0.6, type=float, help='percentage of weight to prune')
+parser.add_argument('--stop', action='store_true', help='stop')
 
 args = parser.parse_args()
 state = {k: v for k, v in args._get_kwargs()}
@@ -203,6 +204,23 @@ def main():
         model_state_dict.update(pretrained)
         # print(model_state_dict.keys())
         model.load_state_dict(model_state_dict)
+        total = 0
+        pruned = 0
+        ratio_list = []
+        for k, m in enumerate(model.modules()):
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                total += m.weight.data.numel()
+                weight_copy = m.weight.data.abs().clone()
+                mask = weight_copy.gt(0).float().cuda()
+                pruned = pruned + mask.numel() - torch.sum(mask)
+                print('layer index: {:d} \t total params: {:d} \t remaining params: {:d} \t remaining ratio: {:f}'.
+                      format(k, mask.numel(), int(torch.sum(mask)), int(torch.sum(mask)) / mask.numel()))
+                ratio_list.append(int(torch.sum(mask)) / mask.numel())
+        print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned / total))
+        if args.stop:
+            return
+
+
     else:
         logger = Logger(os.path.join(args.save_dir, 'log.txt'), title=title)
         logger.set_names(['Learning Rate', 'Train Loss', 'Valid Loss', 'Train Acc.', 'Valid Acc.'])
