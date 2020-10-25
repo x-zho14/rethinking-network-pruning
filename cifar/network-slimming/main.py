@@ -131,8 +131,8 @@ def train(epoch):
         # if args.cuda:
         #     data, target = data.cuda(), target.cuda()
         # # data, target = Variable(data), Variable(target)
-        data = data.cuda(args.gpu, non_blocking=True)
-        target = target.cuda(args.gpu, non_blocking=True)
+        data = data.cuda(0, non_blocking=True)
+        target = target.cuda(0, non_blocking=True)
         optimizer.zero_grad()
         output = model(data)
         loss = F.cross_entropy(output, target)
@@ -158,8 +158,8 @@ def test():
         # if args.cuda:
         #     data, target = data.cuda(), target.cuda()
         # data, target = Variable(data, volatile=True), Variable(target)
-        data = data.cuda(args.gpu, non_blocking=True)
-        target = target.cuda(args.gpu, non_blocking=True)
+        data = data.cuda(0, non_blocking=True)
+        target = target.cuda(0, non_blocking=True)
         output = model(data)
         test_loss += F.cross_entropy(output, target, size_average=False).item() # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
