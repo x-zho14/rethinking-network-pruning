@@ -65,34 +65,32 @@ if args.dataset == 'cifar10':
     train_loader = torch.utils.data.DataLoader(
         datasets.CIFAR10('./data.cifar10', train=True, download=True,
                        transform=transforms.Compose([
-                           transforms.Pad(4),
-                           transforms.RandomCrop(32),
+                           transforms.RandomCrop(32, padding=4),
                            transforms.RandomHorizontalFlip(),
                            transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+                           transforms.Normalize((0.491, 0.482, 0.447), (0.247, 0.243, 0.262))
                        ])),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = torch.utils.data.DataLoader(
         datasets.CIFAR10('./data.cifar10', train=False, transform=transforms.Compose([
                            transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+                           transforms.Normalize((0.491, 0.482, 0.447), (0.247, 0.243, 0.262))
                        ])),
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
 else:
     train_loader = torch.utils.data.DataLoader(
         datasets.CIFAR100('./data.cifar100', train=True, download=True,
                        transform=transforms.Compose([
-                           transforms.Pad(4),
-                           transforms.RandomCrop(32),
+                           transforms.RandomCrop(32, padding=4),
                            transforms.RandomHorizontalFlip(),
                            transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+                           transforms.Normalize((0.491, 0.482, 0.447), (0.247, 0.243, 0.262))
                        ])),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = torch.utils.data.DataLoader(
         datasets.CIFAR100('./data.cifar100', train=False, transform=transforms.Compose([
                            transforms.ToTensor(),
-                           transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+                           transforms.Normalize((0.491, 0.482, 0.447), (0.247, 0.243, 0.262))
                        ])),
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
 
@@ -136,7 +134,7 @@ def train(epoch):
         optimizer.zero_grad()
         output = model(data)
         loss = F.cross_entropy(output, target)
-        avg_loss += loss.data[0]
+        avg_loss += loss.item()
         pred = output.data.max(1, keepdim=True)[1]
         train_acc += pred.eq(target.data.view_as(pred)).cpu().sum()
         loss.backward()
@@ -159,7 +157,7 @@ def test():
             data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
-        test_loss += F.cross_entropy(output, target, size_average=False).data[0] # sum up batch loss
+        test_loss += F.cross_entropy(output, target, size_average=False).item() # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
