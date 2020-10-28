@@ -94,13 +94,13 @@ def test(model):
         test_loader = torch.utils.data.DataLoader(
             datasets.CIFAR10('./data.cifar10', train=False, transform=transforms.Compose([
                 transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])),
+                transforms.Normalize((0.491, 0.482, 0.447), (0.247, 0.243, 0.262))])),
             batch_size=args.test_batch_size, shuffle=True, **kwargs)
     elif args.dataset == 'cifar100':
         test_loader = torch.utils.data.DataLoader(
             datasets.CIFAR100('./data.cifar100', train=False, transform=transforms.Compose([
                 transforms.ToTensor(),
-                transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))])),
+                transforms.Normalize((0.491, 0.482, 0.447), (0.247, 0.243, 0.262))])),
             batch_size=args.test_batch_size, shuffle=True, **kwargs)
     else:
         raise ValueError("No valid dataset is given.")
